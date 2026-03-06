@@ -1,11 +1,14 @@
 //TripPlannerPage.jsx
-//parent component- owns all state and passes down to children via props
+//Route: /trip/:id
+//Parent component - owns all state and passes down to children via props
+//Loads a specific trip by ID from the URL param, fetches its itinerary items from Parse
 
 import { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import TripForm from "./TripForm";
 import ItineraryList from "./ItineraryList";
 import {
-  getTrips,
+  getTripById,
   createTrip,
   updateTrip,
 } from "../../Common/Parse/TripModel";
@@ -16,6 +19,10 @@ import {
 } from "../../Common/Parse/ItineraryItemModel";
 
 function TripPlannerPage() {
+  // Read trip ID from the URL (e.g. /trip/abc123)
+  const { id } = useParams();
+  const navigate = useNavigate();
+
   const [trip, setTrip] = useState({
     id: "",
     name: "",
@@ -30,56 +37,53 @@ function TripPlannerPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false); // tracks save success
 
-  //load trips from parse on mount
+  // Load the specific trip (by route param ID) and its items from Parse on mount
   useEffect(() => {
     async function load() {
       setLoading(true);
       setError("");
 
       try {
-        const trips = await getTrips();
+        const firstTrip = await getTripById(id);
 
-        if (trips && trips.length > 0) {
-          const firstTrip = trips[0];
+        const loadedTrip = {
+          id: firstTrip.id,
+          name: firstTrip.get("name") || "",
+          destination: firstTrip.get("destination") || "",
+          startDate: firstTrip.get("startDate") || "",
+          style: firstTrip.get("style") || "relax",
+          days: firstTrip.get("days") || 1,
+          items: [],
+        };
 
-          const loadedTrip = {
-            id: firstTrip.id,
-            name: firstTrip.get("name") || "",
-            destination: firstTrip.get("destination") || "",
-            startDate: firstTrip.get("startDate") || "",
-            style: firstTrip.get("style") || "relax",
-            days: firstTrip.get("days") || 1,
-            items: [],
-          };
+        // Load itinerary items for this trip from Parse
+        const items = await getItemsByTrip(firstTrip.id);
 
-          const items = await getItemsByTrip(firstTrip.id);
+        loadedTrip.items = items.map((item) => ({
+          id: item.id,
+          title: item.get("title"),
+          day: item.get("day"),
+          time: item.get("time"),
+          category: item.get("category"),
+        }));
 
-          loadedTrip.items = items.map((item) => ({
-            id: item.id,
-            title: item.get("title"),
-            day: item.get("day"),
-            time: item.get("time"),
-            category: item.get("category"),
-          }));
-
-          setTrip(loadedTrip);
-        }
+        setTrip(loadedTrip);
       } catch {
-        setError("Could not load trips.");
+        setError("Could not load trip.");
       } finally {
         setLoading(false);
       }
     }
 
     load();
-  }, []);
+  }, [id]); // re-runs if the route ID changes
 
-  //update a field on the trip object
+  // Update a field on the trip object (called by TripForm via props)
   function handleTripChange(field, value) {
     setTrip((prev) => ({ ...prev, [field]: value }));
   }
 
-  //add an itinerary item
+  // Add an itinerary item to Parse and update local state
   async function handleAddItem(title) {
     if (!trip.id) {
       setError("Save the trip before adding itinerary items.");
@@ -114,7 +118,7 @@ function TripPlannerPage() {
     }
   }
 
-  //delete an itinerary item by ID
+  // Delete an itinerary item from Parse by ID, then update local state
   async function handleDeleteItem(itemId) {
     try {
       await deleteItem(itemId);
@@ -128,7 +132,7 @@ function TripPlannerPage() {
     }
   }
 
-  //save the trip to Parse
+  // Save (create or update) the trip in Parse
   async function handleSave() {
     setLoading(true);
     setError("");
@@ -158,7 +162,12 @@ function TripPlannerPage() {
 
   return (
     <div style={{ maxWidth: 720, margin: "0 auto", padding: 16 }}>
-      <h1>Travel Planner</h1>
+      {/* Back button routes user to the trips list page */}
+      <button onClick={() => navigate("/")} style={{ marginBottom: 12 }}>
+        ← Back to Trips
+      </button>
+
+      <h1>Trip Planner</h1>
 
       {loading && <p>Loading...</p>}
       {error && <p style={{ color: "red" }}>{error}</p>}
