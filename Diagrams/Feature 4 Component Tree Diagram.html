@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Component Tree Diagram</title>
+  <style>
+    body {
+      font-family: 'Courier New', monospace;
+      background: #fff;
+      padding: 40px;
+      margin: 0;
+    }
+    h1 {
+      font-size: 15px;
+      font-weight: normal;
+      color: #5b9bd5;
+      margin-bottom: 32px;
+    }
+    h1 strong { font-weight: bold; }
+  </style>
+</head>
+<body>
+
+<h1>Component Tree Diagram</h1>
+
+<!--
+  Node positions (cx = horizontal centre, y_top, y_bot):
+    root            cx=430  y=20..72
+    App             cx=430  y=130..182
+    TripsListPage   cx=200  y=260..312
+    TripPlannerPage cx=660  y=260..312
+    TripForm        cx=560  y=390..442
+    ItineraryList   cx=760  y=390..442
+-->
+<svg width="900" height="500" xmlns="http://www.w3.org/2000/svg"
+     font-family="Courier New, monospace">
+
+  <!-- ── CONNECTORS (drawn first so nodes sit on top) ── -->
+
+  <!-- root → App -->
+  <line x1="430" y1="72"  x2="430" y2="130" stroke="#5b9bd5" stroke-width="2"/>
+
+  <!-- App → horizontal junction y=220 -->
+  <line x1="430" y1="182" x2="430" y2="220" stroke="#5b9bd5" stroke-width="2"/>
+  <!-- horizontal bar -->
+  <line x1="200" y1="220" x2="660" y2="220" stroke="#5b9bd5" stroke-width="2"/>
+  <!-- down to TripsListPage -->
+  <line x1="200" y1="220" x2="200" y2="260" stroke="#5b9bd5" stroke-width="2"/>
+  <!-- down to TripPlannerPage -->
+  <line x1="660" y1="220" x2="660" y2="260" stroke="#5b9bd5" stroke-width="2"/>
+
+  <!-- TripPlannerPage → horizontal junction y=355 -->
+  <line x1="660" y1="312" x2="660" y2="355" stroke="#5b9bd5" stroke-width="2"/>
+  <!-- horizontal bar -->
+  <line x1="560" y1="355" x2="760" y2="355" stroke="#5b9bd5" stroke-width="2"/>
+  <!-- down to TripForm -->
+  <line x1="560" y1="355" x2="560" y2="390" stroke="#5b9bd5" stroke-width="2"/>
+  <!-- down to ItineraryList -->
+  <line x1="760" y1="355" x2="760" y2="390" stroke="#5b9bd5" stroke-width="2"/>
+
+  <!-- ── NODES ── -->
+
+  <!-- root -->
+  <rect x="340" y="20"  width="180" height="52" fill="#fff" stroke="#5b9bd5" stroke-width="2"/>
+  <text x="430" y="52" text-anchor="middle" font-size="14" fill="#333">root</text>
+
+  <!-- App -->
+  <rect x="340" y="130" width="180" height="52" fill="#fff" stroke="#5b9bd5" stroke-width="2"/>
+  <text x="430" y="162" text-anchor="middle" font-size="14" fill="#333">App</text>
+
+  <!-- TripsListPage -->
+  <rect x="100" y="260" width="200" height="52" fill="#fff" stroke="#5b9bd5" stroke-width="2"/>
+  <text x="200" y="292" text-anchor="middle" font-size="14" fill="#333">TripsListPage</text>
+
+  <!-- TripPlannerPage -->
+  <rect x="560" y="260" width="200" height="52" fill="#fff" stroke="#5b9bd5" stroke-width="2"/>
+  <text x="660" y="292" text-anchor="middle" font-size="14" fill="#333">TripPlannerPage</text>
+
+  <!-- TripForm -->
+  <rect x="460" y="390" width="200" height="52" fill="#fff" stroke="#5b9bd5" stroke-width="2"/>
+  <text x="560" y="422" text-anchor="middle" font-size="14" fill="#333">TripForm</text>
+
+  <!-- ItineraryList -->
+  <rect x="660" y="390" width="200" height="52" fill="#fff" stroke="#5b9bd5" stroke-width="2"/>
+  <text x="760" y="422" text-anchor="middle" font-size="14" fill="#333">ItineraryList</text>
+
+</svg>
+
+</body>
+</html>
