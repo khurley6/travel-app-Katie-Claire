@@ -6,6 +6,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getTrips, createTrip } from "../../Common/Parse/TripModel";
+import { logout } from "../../Common/services/authService";
 
 function TripsListPage() {
   const [trips, setTrips] = useState([]);
@@ -60,9 +61,18 @@ function TripsListPage() {
     }
   }
 
+  // Log out the current user and redirect to login
+  async function handleLogout() {
+    await logout();
+    navigate("/login");
+  }
+
   return (
     <div style={{ maxWidth: 720, margin: "0 auto", padding: 16 }}>
-      <h1>My Trips</h1>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <h1>My Trips</h1>
+        <button onClick={handleLogout}>Logout</button>
+      </div>
 
       {loading && <p>Loading...</p>}
       {error && <p style={{ color: "red" }}>{error}</p>}
