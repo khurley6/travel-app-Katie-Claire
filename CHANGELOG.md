@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file.
 
 The format is based on Keep a Changelog and this project adheres to Semantic Versioning.
 
+## [0.3.0] - 2026-03-27
+
+### Added
+TRAVELPLANNER-012 MINOR Added authService.js with login, register, logout, and isAuthenticated methods.
+TRAVELPLANNER-013 MINOR Created LoginPage component at route /login.
+TRAVELPLANNER-014 MINOR Created RegisterPage component at route /register.
+TRAVELPLANNER-015 MINOR Added ProtectedRoute component to block unauthenticated access.
+TRAVELPLANNER-016 MINOR Added PublicRoute component to redirect logged-in users away from auth pages.
+TRAVELPLANNER-017 MINOR Added logout button to TripsListPage.
+
+### Changed
+TRAVELPLANNER-018 PATCH Updated App.jsx to include login and register routes with ProtectedRoute and PublicRoute wrappers.
+TRAVELPLANNER-019 PATCH Updated TripModel.js to scope trips to the current logged-in user.
+
 ## [0.2.0] - 2026-03-06
 
 ### Added
