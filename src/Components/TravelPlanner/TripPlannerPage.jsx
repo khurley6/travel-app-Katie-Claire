@@ -17,6 +17,7 @@ import {
   createItem,
   deleteItem,
 } from "../../Common/Parse/ItineraryItemModel";
+import TripMap from "../Map/TripMap";
 
 function TripPlannerPage() {
   // Read trip ID from the URL (e.g. /trip/abc123)
@@ -162,17 +163,16 @@ function TripPlannerPage() {
 
   return (
     <div style={{ maxWidth: 720, margin: "0 auto", padding: 16 }}>
-      {/* Back button routes user to the trips list page */}
       <button onClick={() => navigate("/")} style={{ marginBottom: 12 }}>
         ← Back to Trips
       </button>
-
+  
       <h1>Trip Planner</h1>
-
+  
       {loading && <p>Loading...</p>}
       {error && <p style={{ color: "red" }}>{error}</p>}
       {success && <p style={{ color: "green" }}>Trip saved successfully!</p>}
-
+  
       <TripForm
         trip={trip}
         onTripChange={handleTripChange}
@@ -180,8 +180,14 @@ function TripPlannerPage() {
         onSave={handleSave}
         disabled={loading}
       />
-
-      <ItineraryList items={trip.items} onDeleteItem={handleDeleteItem} />
+  
+      {/* 👇 ADD MAP RIGHT HERE */}
+      <TripMap trip={trip} />
+  
+      <ItineraryList
+        items={trip.items}
+        onDeleteItem={handleDeleteItem}
+      />
     </div>
   );
 }

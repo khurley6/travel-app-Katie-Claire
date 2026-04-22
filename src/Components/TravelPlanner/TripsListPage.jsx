@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { getTrips, createTrip } from "../../Common/Parse/TripModel";
 import { logout } from "../../Common/services/authService";
 
+
 function TripsListPage() {
   const [trips, setTrips] = useState([]);
   const [loading, setLoading] = useState(false);
