@@ -20,7 +20,6 @@ import {
 import TripMap from "../Map/TripMap";
 
 function TripPlannerPage() {
-  // Read trip ID from the URL (e.g. /trip/abc123)
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -36,14 +35,13 @@ function TripPlannerPage() {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState(false); // tracks save success
+  const [success, setSuccess] = useState(false);
 
-  // Load the specific trip (by route param ID) and its items from Parse on mount
+  // Load the specific trip by route param ID and its items from Parse
   useEffect(() => {
     async function load() {
       setLoading(true);
       setError("");
-
       try {
         const firstTrip = await getTripById(id);
 
@@ -57,9 +55,7 @@ function TripPlannerPage() {
           items: [],
         };
 
-        // Load itinerary items for this trip from Parse
         const items = await getItemsByTrip(firstTrip.id);
-
         loadedTrip.items = items.map((item) => ({
           id: item.id,
           title: item.get("title"),
@@ -75,55 +71,44 @@ function TripPlannerPage() {
         setLoading(false);
       }
     }
-
     load();
-  }, [id]); // re-runs if the route ID changes
+  }, [id]);
 
-  // Update a field on the trip object (called by TripForm via props)
   function handleTripChange(field, value) {
     setTrip((prev) => ({ ...prev, [field]: value }));
   }
 
-  // Add an itinerary item to Parse and update local state
   async function handleAddItem(title) {
     if (!trip.id) {
       setError("Save the trip before adding itinerary items.");
       return;
     }
-
-    const newItemData = {
-      tripId: trip.id,
-      title,
-      day: 1,
-      time: "",
-      category: "activity",
-    };
-
     try {
-      const savedItem = await createItem(newItemData);
-
-      const newItem = {
-        id: savedItem.id,
-        title: savedItem.get("title"),
-        day: savedItem.get("day"),
-        time: savedItem.get("time"),
-        category: savedItem.get("category"),
-      };
-
+      const savedItem = await createItem({
+        tripId: trip.id,
+        title,
+        day: 1,
+        time: "",
+        category: "activity",
+      });
       setTrip((prev) => ({
         ...prev,
-        items: [...prev.items, newItem],
+        items: [...prev.items, {
+          id: savedItem.id,
+          title: savedItem.get("title"),
+          day: savedItem.get("day"),
+          time: savedItem.get("time"),
+          category: savedItem.get("category"),
+        }],
       }));
     } catch {
       setError("Could not save item.");
     }
   }
 
-  // Delete an itinerary item from Parse by ID, then update local state
   async function handleDeleteItem(itemId) {
     try {
       await deleteItem(itemId);
-
       setTrip((prev) => ({
         ...prev,
         items: prev.items.filter((i) => i.id !== itemId),
@@ -133,26 +118,15 @@ function TripPlannerPage() {
     }
   }
 
-  // Save (create or update) the trip in Parse
   async function handleSave() {
     setLoading(true);
     setError("");
     setSuccess(false);
-
     try {
-      let savedTrip;
-
-      if (trip.id) {
-        savedTrip = await updateTrip(trip.id, trip);
-      } else {
-        savedTrip = await createTrip(trip);
-      }
-
-      setTrip((prev) => ({
-        ...prev,
-        id: savedTrip.id,
-      }));
-
+      const savedTrip = trip.id
+        ? await updateTrip(trip.id, trip)
+        : await createTrip(trip);
+      setTrip((prev) => ({ ...prev, id: savedTrip.id }));
       setSuccess(true);
     } catch {
       setError("Could not save trip.");
@@ -162,32 +136,40 @@ function TripPlannerPage() {
   }
 
   return (
-    <div style={{ maxWidth: 720, margin: "0 auto", padding: 16 }}>
-      <button onClick={() => navigate("/")} style={{ marginBottom: 12 }}>
+    <div className="page">
+      <button className="back-link" onClick={() => navigate("/")}>
         ← Back to Trips
       </button>
-  
-      <h1>Trip Planner</h1>
-  
-      {loading && <p>Loading...</p>}
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      {success && <p style={{ color: "green" }}>Trip saved successfully!</p>}
-  
-      <TripForm
-        trip={trip}
-        onTripChange={handleTripChange}
-        onAddItem={handleAddItem}
-        onSave={handleSave}
-        disabled={loading}
-      />
-  
-      {/* 👇 ADD MAP RIGHT HERE */}
+
+      <h1>{trip.name || "Trip Planner"}</h1>
+
+      {loading && <p className="trip-meta">Loading...</p>}
+      {error && <p className="error">{error}</p>}
+      {success && <p className="success">Trip saved successfully!</p>}
+
+      <div style={{
+        background: "#fff8f0",
+        border: "0.5px solid #e8ddd0",
+        borderRadius: 12,
+        padding: 20,
+        marginTop: 16,
+        marginBottom: 20
+      }}>
+        <TripForm
+          trip={trip}
+          onTripChange={handleTripChange}
+          onAddItem={handleAddItem}
+          onSave={handleSave}
+          disabled={loading}
+        />
+      </div>
+
+      {/* Map showing the trip destination */}
       <TripMap trip={trip} />
-  
-      <ItineraryList
-        items={trip.items}
-        onDeleteItem={handleDeleteItem}
-      />
+
+      <div style={{ marginTop: 20 }}>
+        <ItineraryList items={trip.items} onDeleteItem={handleDeleteItem} />
+      </div>
     </div>
   );
 }

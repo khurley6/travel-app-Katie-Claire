@@ -1,13 +1,14 @@
 // TripsListPage.jsx
 // Route: /
 // Landing page - loads all trips from Parse and displays them as a list
+// Also displays a map showing all trip destinations using TripsMap component
 // User can click a trip to navigate to its detail page, or create a new one
 
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getTrips, createTrip } from "../../Common/Parse/TripModel";
 import { logout } from "../../Common/services/authService";
-
+import TripsMap from "../Map/TripsMap";
 
 function TripsListPage() {
   const [trips, setTrips] = useState([]);
@@ -15,14 +16,13 @@ function TripsListPage() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  // Load all trips from Parse on mount (async data requirement)
+  // Load all trips from Parse on mount
   useEffect(() => {
     async function load() {
       setLoading(true);
       setError("");
       try {
         const results = await getTrips();
-        // Map Parse objects to plain JS for display
         setTrips(
           results.map((t) => ({
             id: t.id,
@@ -42,7 +42,7 @@ function TripsListPage() {
     load();
   }, []);
 
-  // Create a blank trip in Parse and navigate to its planner page
+  // Create a blank trip and navigate to its planner page
   async function handleNewTrip() {
     setLoading(true);
     setError("");
@@ -54,7 +54,6 @@ function TripsListPage() {
         days: 1,
         style: "relax",
       });
-      // Route to the new trip's detail page
       navigate(`/trip/${saved.id}`);
     } catch {
       setError("Could not create trip.");
@@ -69,58 +68,48 @@ function TripsListPage() {
   }
 
   return (
-    <div style={{ maxWidth: 720, margin: "0 auto", padding: 16 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+    <div className="page">
+      <div className="page-header">
         <h1>My Trips</h1>
-        <button onClick={handleLogout}>Logout</button>
+        <div style={{ display: "flex", gap: 8 }}>
+          <button className="btn-primary" onClick={handleNewTrip} disabled={loading}>
+            + New Trip
+          </button>
+          <button className="btn-secondary" onClick={handleLogout}>
+            Logout
+          </button>
+        </div>
       </div>
 
-      {loading && <p>Loading...</p>}
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      {loading && <p className="trip-meta">Loading...</p>}
+      {error && <p className="error">{error}</p>}
 
-      <button onClick={handleNewTrip} disabled={loading}>
-        + New Trip
-      </button>
+      {/* Map showing all trip destinations */}
+      <TripsMap trips={trips} />
 
       {trips.length === 0 && !loading && (
-        <p style={{ marginTop: 16, color: "#888" }}>
+        <p className="trip-meta" style={{ marginTop: 16 }}>
           No trips yet. Create one to get started!
         </p>
       )}
 
-      {/* Trip list - each item routes to /trip/:id */}
-      <ul style={{ listStyle: "none", padding: 0, marginTop: 16 }}>
+      {/* Trip list */}
+      <div style={{ marginTop: 16 }}>
         {trips.map((trip) => (
-          <li
+          <div
             key={trip.id}
+            className="card"
             onClick={() => navigate(`/trip/${trip.id}`)}
-            style={{
-              border: "1px solid #ddd",
-              borderRadius: 6,
-              padding: 12,
-              marginBottom: 10,
-              cursor: "pointer",
-            }}
           >
-            <strong>{trip.name || "Untitled Trip"}</strong>
-            {trip.destination && (
-              <span style={{ marginLeft: 8, color: "#555" }}>
-                → {trip.destination}
-              </span>
-            )}
-            {trip.startDate && (
-              <span style={{ marginLeft: 8, color: "#999", fontSize: 13 }}>
-                {trip.startDate}
-              </span>
-            )}
-            {trip.days && (
-              <span style={{ marginLeft: 8, color: "#999", fontSize: 13 }}>
-                ({trip.days} day{trip.days !== 1 ? "s" : ""})
-              </span>
-            )}
-          </li>
+            <p className="trip-name">{trip.name || "Untitled Trip"}</p>
+            <p className="trip-meta">
+              {trip.destination && `${trip.destination}`}
+              {trip.startDate && ` · ${trip.startDate}`}
+              {trip.days && ` · ${trip.days} day${trip.days !== 1 ? "s" : ""}`}
+            </p>
+          </div>
         ))}
-      </ul>
+      </div>
     </div>
   );
 }
