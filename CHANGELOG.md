@@ -3,6 +3,21 @@ All notable changes to this project will be documented in this file.
 
 The format is based on Keep a Changelog and this project adheres to Semantic Versioning.
 
+[0.4.0] - 2026-03-28
+
+### Added
+TRAVELPLANNER-020 MINOR Created TripMap component using react-leaflet to display trip destinations.
+TRAVELPLANNER-021 MINOR Integrated interactive map into TripPlannerPage.
+TRAVELPLANNER-022 MINOR Added marker and popup to display destination name, start date, and trip duration.
+TRAVELPLANNER-023 MINOR Implemented geoCodingService to convert destination names into latitude and longitude coordinates dynamically.
+
+### Changed
+TRAVELPLANNER-024 PATCH Updated environments.js to include MAP_TILE_URL for map configuration.
+TRAVELPLANNER-025 PATCH Updated TripPlannerPage to include map rendering alongside trip data.
+
+### Fixed
+TRAVELPLANNER-026 PATCH Resolved marker display issues by configuring default Leaflet icons.
+
 ## [0.3.0] - 2026-03-27
 
 ### Added
